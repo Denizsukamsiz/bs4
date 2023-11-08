@@ -1,0 +1,53 @@
+import os
+import fnmatch
+from PyPDF2 import PdfReader
+
+
+def print_titles(pdfler):
+    pdf = PdfReader(pdfler)
+    page = pdf.pages[0]
+    text = page.extract_text()
+    print(f"{text}")
+
+
+def find_pdfs(directory):
+    matches = []
+    for root, dirnames, filenames in os.walk(directory):
+        for filename in fnmatch.filter(filenames, '*.pdf'):
+            matches.append(os.path.join(root, filename))
+    return matches
+
+
+def main():
+    directory = "pdfler"
+    pdf_files = find_pdfs(directory)
+
+    while True:
+        print("\nMenü:")
+        print("1- Başlıkları yazdır")
+        print("2- Başlıkları kaydet")
+        print("0- Çıkış")
+
+        tuslama = input("Lütfen seçenek seçiniz...: ")
+
+        if tuslama == '1':
+            for pdf_file in pdf_files:
+                print_titles(pdf_file)
+        elif tuslama == '2':
+            with open('başlıklar.txt', 'w') as f:
+                for pdf_file in pdf_files:
+                    pdf = PdfReader(pdf_file)
+                    page = pdf.pages[0]
+                    text = page.extract_text()
+                    f.write(f"{text}\n")
+            print("Başlıklar Kaydedildi...")
+        elif tuslama == '0':
+            print("Çıkış Yapıldı.")
+            break
+        else:
+            print("uygulamayı tekrar başlatınız...")
+            break
+
+
+if __name__ == "__main__":
+    main()
