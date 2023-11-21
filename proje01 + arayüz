@@ -1,1 +1,56 @@
+import os
+import fnmatch
+from PyPDF2 import PdfReader
+import tkinter as tk
+from tkinter import messagebox
 
+def print_titles(pdfler):
+    pdf = PdfReader(pdfler)
+    page = pdf.pages[0]
+    text = page.extract_text()
+    print(f"{text}")
+
+def find_pdfs(directory):
+    matches = []
+    for root, dirnames, filenames in os.walk(directory):
+        for filename in fnmatch.filter(filenames, '*.pdf'):
+            matches.append(os.path.join(root, filename))
+    return matches
+
+def show_titles():
+    pdf_files = find_pdfs("pdfler")
+    for pdf_file in pdf_files:
+        print_titles(pdf_file)
+    messagebox.showinfo("Bilgi", "Başlıklar Ekranda Gösterildi..")
+
+def save_titles():
+    pdf_files = find_pdfs("pdfler")
+    with open('başlıklar.txt', 'w') as f:
+        for pdf_file in pdf_files:
+            pdf = PdfReader(pdf_file)
+            page = pdf.pages[0]
+            text = page.extract_text()
+            f.write(f"{text}\n")
+    messagebox.showinfo("Bilgi", "Başlıklar Kaydedildi..")
+
+def on_closing():
+    if messagebox.askokcancel("Çıkış", "Bu uygulamadan çıkmak istediğinize emin misiniz?"):
+        root.destroy()
+
+root = tk.Tk()
+root.title("PDF Başlıkları")
+
+frame = tk.Frame(root)
+frame.pack(padx=50, pady=50)
+
+show_titles_button = tk.Button(frame, text="Başlıkları Göster", command=show_titles)
+show_titles_button.pack(pady=10)
+
+save_titles_button = tk.Button(frame, text="Başlıkları Kaydet", command=save_titles)
+save_titles_button.pack(pady=10)
+
+quit_button = tk.Button(frame, text="Çıkış", command=on_closing)
+quit_button.pack(pady=10)
+
+root.protocol("WM_DELETE_WINDOW", on_closing)
+root.mainloop()
